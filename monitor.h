@@ -1,3 +1,4 @@
 #pragma once
 
-int vitalsOk(float temperature, float pulseRate, float spo2);
+static int handleVitals(float temperature, float pulseRate, float spo2);
+
