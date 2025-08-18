@@ -1,38 +1,51 @@
 #include "./monitor.h"
-#include <assert.h>
-#include <thread>
-#include <chrono>
-#include <iostream>
-using std::cout, std::flush, std::this_thread::sleep_for, std::chrono::seconds;
+#include <stdio.h>
+#include <unistd.h>
 
-int vitalsOk(float temperature, float pulseRate, float spo2) {
-  if (temperature > 102 || temperature < 95) {
-    cout << "Temperature is critical!\n";
-    for (int i = 0; i < 6; i++) {
-      cout << "\r* " << flush;
-      sleep_for(seconds(1));
-      cout << "\r *" << flush;
-      sleep_for(seconds(1));
+// Constants for vital sign thresholds
+#define CRITICAL_TEMP_LOW 95.0f
+#define CRITICAL_TEMP_HIGH 102.0f
+#define PULSE_RATE_LOW 60.0f
+#define PULSE_RATE_HIGH 100.0f
+#define SPO2_LOW 90.0f
+
+// Function prototypes
+static int checkVital(float value, float min, float max, const char *alertMsg);
+static void flashWarning(const char *message);
+
+// Function to check if a vital is out of range and handle alerting
+static int checkVital(float value, float min, float max, const char *alertMsg) {
+    if (value < min || value > max) {
+        flashWarning()
+        return 0;  // Vital out of range
     }
-    return 0;
-  } else if (pulseRate < 60 || pulseRate > 100) {
-    cout << "Pulse Rate is out of range!\n";
-    for (int i = 0; i < 6; i++) {
-      cout << "\r* " << flush;
-      sleep_for(seconds(1));
-      cout << "\r *" << flush;
-      sleep_for(seconds(1));
-    }
-    return 0;
-  } else if (spo2 < 90) {
-    cout << "Oxygen Saturation out of range!\n";
-    for (int i = 0; i < 6; i++) {
-      cout << "\r* " << flush;
-      sleep_for(seconds(1));
-      cout << "\r *" << flush;
-      sleep_for(seconds(1));
-    }
-    return 0;
-  }
-  return 1;
+    return 1;  // Vital within range
 }
+
+int isSpo2Ok(float spo2) {
+    if(spo2 < CRITICAL_SPO2_MIN){
+      flashwarning("Oxygen Saturation is out of range!");
+}
+// Function to flash warning message
+static void flashWarning(const char *message) {
+    printf("%s\n", message);
+    for (int i = 0; i < 6; i++) {
+        printf("\r* ");
+        fflush(stdout);
+        sleep(1);
+        printf("\r *");
+        fflush(stdout);
+        sleep(1);
+    }
+    printf("\n");
+}
+
+// Function to handle vitals and check each one
+static int handleVitals(float temperature, float pulseRate, float spo2) {
+    int tempResult = checkVital(temperature, CRITICAL_TEMP_LOW, CRITICAL_TEMP_HIGH, "Temperature is critical!");
+    int pulseResult = checkVital(pulseRate, PULSE_RATE_LOW, PULSE_RATE_HIGH, "Pulse Rate is out of range!");
+    int spo2Result = isSpo2Ok(spo2);
+
+    return tempResult || pulseResult || spo2Result;
+}
+
