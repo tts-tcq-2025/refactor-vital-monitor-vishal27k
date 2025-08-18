@@ -16,7 +16,7 @@ static void flashWarning(const char *message);
 // Function to check if a vital is out of range and handle alerting
 static int checkVital(float value, float min, float max, const char *alertMsg, void (*flashWarningFunc)(const char *)) {
     if (value < min || value > max) {
-        flashWarningFunc(*alertMsg);
+        flashWarningFunc(alertMsg);
         return 0;  // Vital out of range
     }
     return 1;  // Vital within range
