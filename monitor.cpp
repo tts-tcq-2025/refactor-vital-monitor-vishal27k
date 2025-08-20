@@ -26,19 +26,7 @@ int isSpo2Ok(float spo2, void (*flashWarningFunc)(const char *)) {
     if(spo2 < CRITICAL_SPO2_MIN){
       flashWarningFunc("Oxygen Saturation is out of range!");
 }
-// Function to flash warning message
-static void flashWarning(const char *message) {
-    printf("%s\n", message);
-    for (int i = 0; i < 6; i++) {
-        printf("\r* ");
-        fflush(stdout);
-        sleep(1);
-        printf("\r *");
-        fflush(stdout);
-        sleep(1);
-    }
-    printf("\n");
-}
+
 
 // Function to handle vitals and check each one
 static int handleVitals(float temperature, float pulseRate, float spo2) {
